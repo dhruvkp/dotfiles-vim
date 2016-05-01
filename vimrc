@@ -86,8 +86,9 @@ endif
 
 
 
-"most important mapping
+"most important mappings
 nnoremap ; :
+inoremap jj <esc>
 
 " Shortcuts to navigate among split-views
 nnoremap <C-J> <C-W><C-J>
@@ -128,14 +129,14 @@ set splitright
 
 let hour = strftime("%H") " Set the background light from 7am to 7pm
 if 7 <= hour && hour < 19
-  set background=light
+    set background=light
+    colorscheme pyte " Use the awesome solarized color scheme
 else " Set to dark from 7pm to 7am
-  set background=dark
+    set background=dark
 endif
 let g:solarized_termcolors = 16
 let g:solarized_visibility = "high"
 let g:solarized_contrast = "high"
-colorscheme monokain " Use the awesome solarized color scheme
 
 "" function to list virtualenvs
 :fun ReturnVirtualEnvs(A,L,P)
