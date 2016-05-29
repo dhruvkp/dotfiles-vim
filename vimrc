@@ -29,7 +29,10 @@ Plugin 'tpope/vim-fugitive'
 
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'Raimondi/delimitMate'
-"Plugin 'scrooloose/nerdtree'
+Plugin 'scrooloose/nerdtree'
+Plugin 'Xuyuanp/nerdtree-git-plugin'
+Plugin 'airblade/vim-gitgutter'
+Plugin 'jistr/vim-nerdtree-tabs'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
@@ -41,7 +44,7 @@ Plugin 'flazz/vim-colorschemes'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'ScrollColors'
-
+Plugin 'rbgrouleff/bclose.vim'
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -65,7 +68,7 @@ set hidden
 set omnifunc=syntaxcomplete#Complete
 syntax on
 set clipboard=unnamed
-set number
+set relativenumber 
 set mouse=a
 set autoindent
 set shiftwidth=4
@@ -73,7 +76,7 @@ set tabstop=4
 set softtabstop=4
 set expandtab
 set laststatus=2
-"colorscheme jellyx
+colorscheme jellyx
 "set background=dark
 "let g:solarized_termcolors=256
 let mapleader=" "
@@ -85,10 +88,37 @@ if $TERM_PROGRAM =~ "iTerm"
 endif
 
 
+" switch line number view
+
+function! NumberToggle()
+  if(&relativenumber == 1)
+    set relativenumber!
+    set number
+  else
+    set number!
+    set relativenumber
+  endif
+endfunc
+
+nnoremap <leader>l :call NumberToggle()<cr>
+
+" change case of selected text
+function! TwiddleCase(str)
+  if a:str ==# toupper(a:str)
+    let result = tolower(a:str)
+  elseif a:str ==# tolower(a:str)
+    let result = substitute(a:str,'\(\<\w\+\>\)', '\u\1', 'g')
+  else
+    let result = toupper(a:str)
+  endif
+  return result
+endfunction
+vnoremap ~ y:call setreg('', TwiddleCase(@"), getregtype(''))<CR>gv""Pgv
+
 
 "most important mappings
 nnoremap ; :
-inoremap jj <esc>
+"inoremap jj <esc>
 
 " Shortcuts to navigate among split-views
 nnoremap <C-J> <C-W><C-J>
@@ -99,7 +129,7 @@ nnoremap <C-H> <C-W><C-H>
 "" leader mappings
 nnoremap <leader>q :q<CR>
 nnoremap <leader>w :w<CR>
-nnoremap <leader>d :bd<CR>
+nnoremap <leader>d :Bclose<CR>
 nnoremap K :bn<CR>
 nnoremap J :bp<CR>
 nnoremap <leader>o :e<Space>
@@ -108,35 +138,34 @@ nnoremap <leader>o :e<Space>
 map <f3> :YcmCompleter GoTo<CR>
 
 """NerdTree open on starting vim"""
-"let g:NERDTreeWinPos = "left"
-"let g:nerdtree_tabs_open_on_console_startup=1
-"let g:nerdtree_tabs_autofind=1
-"let NERDTreeQuitOnOpen=1
-"nnoremap <leader>t  :NERDTreeToggle<CR>
+let g:NERDTreeWinPos = "left"
+let g:nerdtree_tabs_open_on_console_startup=1
+let g:nerdtree_tabs_autofind=1
+nnoremap <leader>t  :NERDTreeToggle<CR>
 
 " snippets trigger
-let g:UltiSnipsExpandTrigger="<C-j>"
+let g:UltiSnipsExpandTrigger="<leader-j>"
 
 " airline
-let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
-let g:airline_theme = 'sol'
-let g:airline#extensions#tabline#buffers_label = 'b'
-let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+let g:airline#extensions#tabline#left_sep = ''
+let g:airline#extensions#tabline#left_alt_sep = '|'
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_theme = 'dark'
+let g:airline#extensions#tabline#formatter = 'unique_tail'
 
 set splitbelow
 set splitright
 
 let hour = strftime("%H") " Set the background light from 7am to 7pm
-if 7 <= hour && hour < 19
-    set background=light
-    colorscheme pyte " Use the awesome solarized color scheme
-else " Set to dark from 7pm to 7am
-    set background=dark
-endif
-let g:solarized_termcolors = 16
-let g:solarized_visibility = "high"
-let g:solarized_contrast = "high"
+"if 7 <= hour && hour < 19
+"    set background=dark
+"else " Set to dark from 7pm to 7am
+"    set background=dark
+"endif
+"let g:solarized_termcolors = 16
+"let g:solarized_visibility = "high"
+"let g:solarized_contrast = "high"
 
 "" function to list virtualenvs
 :fun ReturnVirtualEnvs(A,L,P)
@@ -146,6 +175,6 @@ let g:solarized_contrast = "high"
 "" changing virtualenv should restart ycmserver
 :command -nargs=+ -complete=custom,ReturnVirtualEnvs Venv :VirtualEnvActivate <args> | YcmRestartServer
 if has('gui_running')
-  set guifont=SauceCodePro\ Nerd\ Font:h13
+  set guifont=SauceCodePro\ Nerd\ Font:h14
 endif
 
